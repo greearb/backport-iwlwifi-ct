@@ -7216,8 +7216,11 @@ static int validate_scan_freqs(struct nlattr *freqs)
 		 */
 		nla_for_each_nested(attr2, freqs, tmp2)
 			if (attr1 != attr2 &&
-			    nla_get_u32(attr1) == nla_get_u32(attr2))
+			    nla_get_u32(attr1) == nla_get_u32(attr2)) {
+				pr_err("scan:  Duplicate freq requested: %d\n",
+				       nla_get_u32(attr1));
 				return 0;
+			}
 	}
 
 	return n_channels;
@@ -7456,6 +7459,7 @@ static int nl80211_trigger_scan(struct sk_buff *skb, struct genl_info *info)
 		n_channels = validate_scan_freqs(
 				info->attrs[NL80211_ATTR_SCAN_FREQUENCIES]);
 		if (!n_channels) {
+			pr_err("scan:  validate_scan_freqs failed, duplicate freq?\n");
 			err = -EINVAL;
 			goto unlock;
 		}
@@ -7468,6 +7472,8 @@ static int nl80211_trigger_scan(struct sk_buff *skb, struct genl_info *info)
 			n_ssids++;
 
 	if (n_ssids > wiphy->max_scan_ssids) {
+		pr_err("scan:  too many ssids, req: %d  supports: %d\n",
+		       n_ssids, wiphy->max_scan_ssids);
 		err = -EINVAL;
 		goto unlock;
 	}
@@ -7478,6 +7484,8 @@ static int nl80211_trigger_scan(struct sk_buff *skb, struct genl_info *info)
 		ie_len = 0;
 
 	if (ie_len > wiphy->max_scan_ie_len) {
+		pr_err("scan: ie-len too large: %zd  max: %d\n",
+		       ie_len, wiphy->max_scan_ie_len);
 		err = -EINVAL;
 		goto unlock;
 	}
@@ -7510,6 +7518,8 @@ static int nl80211_trigger_scan(struct sk_buff *skb, struct genl_info *info)
 			chan = ieee80211_get_channel(wiphy, nla_get_u32(attr));
 
 			if (!chan) {
+				pr_err("scan:  Channel %d is not supported.\n",
+				       nla_get_u32(attr));
 				err = -EINVAL;
 				goto out_free;
 			}
@@ -7545,6 +7555,7 @@ static int nl80211_trigger_scan(struct sk_buff *skb, struct genl_info *info)
 	}
 
 	if (!i) {
+		pr_err("scan:  No scannable channels found.\n");
 		err = -EINVAL;
 		goto out_free;
 	}
@@ -7574,6 +7585,8 @@ static int nl80211_trigger_scan(struct sk_buff *skb, struct genl_info *info)
 	if (n_ssids) {
 		nla_for_each_nested(attr, info->attrs[NL80211_ATTR_SCAN_SSIDS], tmp) {
 			if (nla_len(attr) > IEEE80211_MAX_SSID_LEN) {
+				pr_err("scan: ssid-len too large: %d  max: %d\n",
+				       nla_len(attr), IEEE80211_MAX_SSID_LEN);
 				err = -EINVAL;
 				goto out_free;
 			}
@@ -7602,6 +7615,8 @@ static int nl80211_trigger_scan(struct sk_buff *skb, struct genl_info *info)
 			enum nl80211_band band = nla_type(attr);
 
 			if (band < 0 || band >= NUM_NL80211_BANDS) {
+				pr_err("scan:  band %d out of range, num-bands: %d\n",
+				       band, NUM_NL80211_BANDS);
 				err = -EINVAL;
 				goto out_free;
 			}
