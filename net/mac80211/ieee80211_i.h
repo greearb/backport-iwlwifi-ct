@@ -2152,9 +2152,12 @@ void ieee80211_mlme_send_probe_req(struct ieee80211_sub_if_data *sdata,
 				   const u8 *ssid, size_t ssid_len,
 				   struct ieee80211_channel *channel);
 void ieee80211_wake_queues_by_reason(struct ieee80211_hw *hw,
-				     unsigned long queues,
+				     unsigned long *queues,
 				     enum queue_stop_reason reason,
 				     bool refcounted);
+void ieee80211_get_vif_queues(struct ieee80211_local *local,
+			      struct ieee80211_sub_if_data *sdata,
+			      unsigned long *queues);
 void ieee80211_stop_vif_queues(struct ieee80211_local *local,
 			       struct ieee80211_sub_if_data *sdata,
 			       enum queue_stop_reason reason);
@@ -2162,7 +2165,7 @@ void ieee80211_wake_vif_queues(struct ieee80211_local *local,
 			       struct ieee80211_sub_if_data *sdata,
 			       enum queue_stop_reason reason);
 void ieee80211_stop_queues_by_reason(struct ieee80211_hw *hw,
-				     unsigned long queues,
+				     unsigned long *queues,
 				     enum queue_stop_reason reason,
 				     bool refcounted);
 void ieee80211_wake_queue_by_reason(struct ieee80211_hw *hw, int queue,
@@ -2180,7 +2183,7 @@ void ieee80211_flush_queues(struct ieee80211_local *local,
 			    struct ieee80211_sub_if_data *sdata, bool drop);
 void __ieee80211_flush_queues(struct ieee80211_local *local,
 			      struct ieee80211_sub_if_data *sdata,
-			      unsigned int queues, bool drop);
+			      unsigned long *queues, bool drop);
 
 static inline bool ieee80211_can_run_worker(struct ieee80211_local *local)
 {
