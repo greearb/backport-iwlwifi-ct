@@ -35,12 +35,16 @@
 #define IEEE80211_AUTH_TIMEOUT_LONG	(CPTCFG_IWL_TIMEOUT_FACTOR * HZ / 2)
 #define IEEE80211_AUTH_TIMEOUT_SHORT	(CPTCFG_IWL_TIMEOUT_FACTOR * HZ / 10)
 #define IEEE80211_AUTH_TIMEOUT_SAE	(CPTCFG_IWL_TIMEOUT_FACTOR * HZ * 2)
-#define IEEE80211_AUTH_MAX_TRIES	3
 #define IEEE80211_AUTH_WAIT_ASSOC	(CPTCFG_IWL_TIMEOUT_FACTOR * HZ * 5)
 #define IEEE80211_ASSOC_TIMEOUT		(CPTCFG_IWL_TIMEOUT_FACTOR * HZ / 5)
 #define IEEE80211_ASSOC_TIMEOUT_LONG	(CPTCFG_IWL_TIMEOUT_FACTOR * HZ / 2)
 #define IEEE80211_ASSOC_TIMEOUT_SHORT	(CPTCFG_IWL_TIMEOUT_FACTOR * HZ / 10)
 #define IEEE80211_ASSOC_MAX_TRIES	3
+
+static int max_auth_tries = 3;
+module_param(max_auth_tries, int, 0644);
+MODULE_PARM_DESC(max_auth_tries,
+		 "Maximum auth tries before giving up (default is 3).");
 
 static int max_nullfunc_tries = 2;
 module_param(max_nullfunc_tries, int, 0644);
@@ -4385,9 +4389,9 @@ static int ieee80211_auth(struct ieee80211_sub_if_data *sdata)
 
 	auth_data->tries++;
 
-	if (auth_data->tries > IEEE80211_AUTH_MAX_TRIES) {
-		sdata_info(sdata, "authentication with %pM timed out\n",
-			   auth_data->bss->bssid);
+	if (auth_data->tries > max_auth_tries) {
+		sdata_info(sdata, "authentication with %pM timed out after %d tries\n",
+			   auth_data->bss->bssid, max_auth_tries);
 
 		/*
 		 * Most likely AP is not in the range so remove the
@@ -4406,7 +4410,7 @@ static int ieee80211_auth(struct ieee80211_sub_if_data *sdata)
 
 	sdata_info(sdata, "send auth to %pM (try %d/%d)\n",
 		   auth_data->bss->bssid, auth_data->tries,
-		   IEEE80211_AUTH_MAX_TRIES);
+		   max_auth_tries);
 
 	auth_data->expected_transaction = 2;
 
