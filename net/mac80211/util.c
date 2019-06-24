@@ -4080,7 +4080,7 @@ int ieee80211_check_combinations(struct ieee80211_sub_if_data *sdata,
 	if (local->hw.wiphy->software_iftypes & BIT(iftype) ||
 	    (iftype == NL80211_IFTYPE_AP_VLAN &&
 	     local->hw.wiphy->flags & WIPHY_FLAG_4ADDR_AP)) {
-		if (radar_detect)
+		if (radar_detect) {
 			sdata_info(sdata, "comb-check: failed software-type + radar-detect\n");
 			return -EINVAL;
 		}
