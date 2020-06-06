@@ -1754,7 +1754,7 @@ int cfg80211_iter_combinations(struct wiphy *wiphy,
 
 		if (num_interfaces > c->max_interfaces) {
 			pr_info("%i: iter-comb, num > max: %d > %d\n",
-			  i, num_interfaces, c->max_interfaces);
+				i, num_interfaces, c->max_interfaces);
 			continue;
 		}
 
@@ -1770,7 +1770,7 @@ int cfg80211_iter_combinations(struct wiphy *wiphy,
 			return -ENOMEM;
 
 		for (iftype = 0; iftype < NUM_NL80211_IFTYPES; iftype++) {
-			if (wiphy->software_iftypes & BIT(iftype))
+			if (wiphy->software_iftypes & BIT(iftype)) {
 				continue;
 			}
 			for (j = 0; j < c->n_limits; j++) {

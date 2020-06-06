@@ -6056,7 +6056,7 @@ static int nl80211_new_station(struct sk_buff *skb, struct genl_info *info)
 		params.vht_capa = NULL;
 
 		/* HE requires WME */
-		if (params.he_capa_len || params.he_6ghz_capa)
+		if (params.he_capa_len || params.he_6ghz_capa) {
 			pr_err("%s: new-station failed, HE requires WME.\n", dev->name);
 			return -EINVAL;
 		}
