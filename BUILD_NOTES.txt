@@ -1,0 +1,6 @@
+# To build against some already-built local kernel (not necessarily
+# what is running on the build machine):
+
+KLIB=/lib/modules/5.7.0+ make
+sudo make install
+
